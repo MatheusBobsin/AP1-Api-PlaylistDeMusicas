@@ -31,10 +31,12 @@ dotnet run --urls http://localhost:5050
 
 ---
 
+---
+
 ## Exemplos de JSON
 
 ### Cadastrar Música (`POST /api/musicas`)
-json
+```json
 {
   "titulo": "Stairway to Heaven",
   "artista": "Led Zeppelin"
