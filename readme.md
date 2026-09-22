@@ -18,11 +18,13 @@ Esta aplicação foi desenvolvida como parte da avaliação AP1 da disciplina. O
 ```bash
 dotnet run --urls http://localhost:5050
 
+## Endpoints da API
+
 | Método | Rota | Descrição |
 | :--- | :--- | :--- |
-| **GET** | / | Verifica se a API está no ar |
-| **GET** | /api/musicas | Lista todas as músicas cadastradas |
-| **GET** | /api/musicas/{id} | Busca os detalhes de uma música pelo ID |
-| **POST** | /api/musicas | Cadastra uma nova música |
-| **PUT** | /api/musicas/{id} | Atualiza os dados de uma música existente pelo ID |
-| **DELETE** | /api/musicas/{id} | Remove uma música pelo ID |
+| **GET** | `/` | Verifica se a API está no ar |
+| **GET** | `/api/musicas` | Lista todas as músicas cadastradas |
+| **GET** | `/api/musicas/{id}` | Busca os detalhes de uma música pelo ID |
+| **POST** | `/api/musicas` | Cadastra uma nova música |
+| **PUT** | `/api/musicas/{id}` | Atualiza os dados de uma música existente pelo ID |
+| **DELETE** | `/api/musicas/{id}` | Remove uma música pelo ID |
