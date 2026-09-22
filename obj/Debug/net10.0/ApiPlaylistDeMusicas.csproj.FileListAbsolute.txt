@@ -26,3 +26,4 @@ C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\obj\Debug\n
 C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\obj\Debug\net10.0\ApiPlaylistDeMusicas.pdb
 C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\obj\Debug\net10.0\ApiPlaylistDeMusicas.genruntimeconfig.cache
 C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\obj\Debug\net10.0\ref\ApiPlaylistDeMusicas.dll
+C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\obj\Debug\net10.0\ApiPlaylistDeMusicas.sourcelink.json

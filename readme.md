@@ -164,4 +164,7 @@ DELETE /api/musicas/1
 * Os dados ficam armazenados somente em memória e são perdidos ao reiniciar a aplicação.
 * Operações para um ID inexistente retornam HTTP `404 Not Found`.
 * O cadastro retorna HTTP `201 Created` e a remoção bem-sucedida retorna HTTP `204 No Content`.
->>>>>>> eb87ed8 (Pasta Do bruno e readme)
+
+## Vídeo de Demonstração
+
+[Vídeo de demonstração](https://drive.google.com/file/d/1dW4hdHI181M-pTSArmDzKzr32G-oTR_t/view?usp=sharing)
