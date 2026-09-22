@@ -1,0 +1,23 @@
+info:
+  name: 04 - Atualizar
+  type: http
+  seq: 5
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/musicas/4"
+  body:
+    type: json
+    data: |2-
+        {
+          "titulo": "Given Up Remaster",
+          "artista": "Linkin Park"
+        }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
