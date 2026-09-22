@@ -74,3 +74,9 @@ Content-Type: application/json
 ```bash
 DELETE /api/musicas/1
 ```
+## Observações
+
+* A aplicação inicia com as músicas `In Bloom` e `My Hero`.
+* Os dados ficam armazenados somente em memória e são perdidos ao reiniciar a aplicação.
+* Operações para um ID inexistente retornam HTTP `404 Not Found`.
+* O cadastro retorna HTTP `201 Created` e a remoção bem-sucedida retorna HTTP `204 No Content`.
