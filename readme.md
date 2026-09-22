@@ -32,19 +32,8 @@ dotnet run --urls http://localhost:5050
 ---
 
 ---
-
-### Listar músicas
-```http
+Listar músicas
 GET /api/musicas
 
-### Cadastrar Música (`POST /api/musicas`)
-```json
-{
-  "titulo": "In Bloom",
-  "artista": "Nirvana"
-}
 
-{
-  "titulo": "Bohemian Rhapsody (Remastered)",
-  "artista": "Queen"
-}
+
