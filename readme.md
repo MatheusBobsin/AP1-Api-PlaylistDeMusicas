@@ -15,7 +15,7 @@ Esta aplicação foi desenvolvida como parte da avaliação AP1 da disciplina. O
 1. Abra o terminal na raiz do repositório.
 2. Execute o comando para iniciar a API na porta local `5050`:
 
-```bash
+bash
 dotnet run --urls http://localhost:5050
 
 ## Endpoints da API
