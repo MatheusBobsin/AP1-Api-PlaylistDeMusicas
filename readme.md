@@ -33,15 +33,21 @@ dotnet run --urls http://localhost:5050
 
 ---
 
-## Exemplos de Chamadas e JSONs
-
 ### Listar músicas
 
 ```bash
 GET /api/musicas
+```
 
+### Buscar música por ID
+
+```bash
 GET /api/musicas/1
+```
 
+### Cadastrar música
+
+```bash
 POST /api/musicas
 Content-Type: application/json
 
@@ -49,7 +55,11 @@ Content-Type: application/json
   "titulo": "Stairway to Heaven",
   "artista": "Led Zeppelin"
 }
+```
 
+### Atualizar música
+
+```bash
 PUT /api/musicas/1
 Content-Type: application/json
 
@@ -57,8 +67,10 @@ Content-Type: application/json
   "titulo": "Bohemian Rhapsody - Edicao revisada",
   "artista": "Queen"
 }
+```
 
+### Remover música
+
+```bash
 DELETE /api/musicas/1
-
-
-
+```
