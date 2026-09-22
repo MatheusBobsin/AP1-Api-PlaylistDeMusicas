@@ -33,11 +33,18 @@ dotnet run --urls http://localhost:5050
 
 ---
 
-## Exemplos de JSON
+### Listar músicas
+```http
+GET /api/musicas
 
 ### Cadastrar Música (`POST /api/musicas`)
 ```json
 {
-  "titulo": "Stairway to Heaven",
-  "artista": "Led Zeppelin"
+  "titulo": "In Bloom",
+  "artista": "Nirvana"
+}
+
+{
+  "titulo": "Bohemian Rhapsody (Remastered)",
+  "artista": "Queen"
 }
