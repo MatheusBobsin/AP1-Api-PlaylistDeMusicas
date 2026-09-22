@@ -32,8 +32,33 @@ dotnet run --urls http://localhost:5050
 ---
 
 ---
-Listar músicas
+
+## Exemplos de Chamadas e JSONs
+
+### Listar músicas
+
+```bash
 GET /api/musicas
+
+GET /api/musicas/1
+
+POST /api/musicas
+Content-Type: application/json
+
+{
+  "titulo": "Stairway to Heaven",
+  "artista": "Led Zeppelin"
+}
+
+PUT /api/musicas/1
+Content-Type: application/json
+
+{
+  "titulo": "Bohemian Rhapsody - Edicao revisada",
+  "artista": "Queen"
+}
+
+DELETE /api/musicas/1
 
 
 
