@@ -52,8 +52,8 @@ POST /api/musicas
 Content-Type: application/json
 
 {
-  "titulo": "Stairway to Heaven",
-  "artista": "Led Zeppelin"
+  "titulo": "My hero",
+  "artista": "Foo fighters"
 }
 ```
 
@@ -64,8 +64,8 @@ PUT /api/musicas/1
 Content-Type: application/json
 
 {
-  "titulo": "Bohemian Rhapsody - Edicao revisada",
-  "artista": "Queen"
+  "titulo": "In bloom - Live",
+  "artista": "Nirvana"
 }
 ```
 
