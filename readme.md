@@ -28,3 +28,14 @@ dotnet run --urls http://localhost:5050
 | **POST** | `/api/musicas` | Cadastra uma nova música |
 | **PUT** | `/api/musicas/{id}` | Atualiza os dados de uma música existente pelo ID |
 | **DELETE** | `/api/musicas/{id}` | Remove uma música pelo ID |
+
+---
+
+## Exemplos de JSON
+
+### Cadastrar Música (`POST /api/musicas`)
+json
+{
+  "titulo": "Stairway to Heaven",
+  "artista": "Led Zeppelin"
+}
