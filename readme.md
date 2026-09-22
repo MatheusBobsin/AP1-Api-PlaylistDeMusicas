@@ -1,4 +1,4 @@
-# API Playlists - Gerenciamento de Músicas
+# API Playlists
 
 API REST minimalista para gerenciamento de playlists de músicas, desenvolvida com **ASP.NET Core** e **.NET 10**.
 
