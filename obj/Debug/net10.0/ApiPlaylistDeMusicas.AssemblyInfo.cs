@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ApiPlaylistDeMusicas")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d39f64a9a359d5019d29efe4cbb43c518f314ee6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9375d564f32a98b4cc2eccfcded45d31fabdcccb")]
 [assembly: System.Reflection.AssemblyProductAttribute("ApiPlaylistDeMusicas")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ApiPlaylistDeMusicas")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
