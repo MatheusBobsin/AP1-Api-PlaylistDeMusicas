@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playlist de Músicas - Interface de Demonstração</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="container header-content">
+      <div>
+        <h1 class="app-title">Gerenciador de Músicas</h1>
+        <p class="app-subtitle">Recurso: <strong>Música</strong> (Título e Artista)</p>
+      </div>
+      <span class="badge-status">Visual Demo</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Banner de Alerta de Demonstração -->
+    <aside class="demo-alert" role="status" aria-label="Aviso de Demonstração">
+      <div class="demo-alert-icon">ℹ️</div>
+      <div class="demo-alert-text">
+        <strong>Ambiente de Demonstração Visual:</strong> Esta interface utiliza dados puramente fictícios mantidos em memória local para fins de apresentação e testes visuais. Nenhuma informação é enviada à rede e nenhum dado do banco de dados é alterado.
+      </div>
+    </aside>
+
+    <div class="layout-grid">
+      <!-- Seção: Formulário de Demonstração -->
+      <section class="card" aria-labelledby="form-title">
+        <div class="card-header">
+          <h2 id="form-title" class="card-title">Cadastrar Música (Demonstração)</h2>
+          <span class="tag-mock">Mock Form</span>
+        </div>
+        <p class="card-description">
+          Preencha os campos abaixo para simular a adição visual de uma nova faixa musical na lista.
+        </p>
+
+        <form id="formMusica" class="form-container" novalidate>
+          <input type="hidden" id="editIndex" value="-1">
+
+          <div class="form-group">
+            <label for="tituloInput">Título da Música <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="tituloInput" 
+              name="titulo" 
+              placeholder="Ex.: Everlong" 
+              maxlength="100" 
+              required
+            >
+            <small class="field-hint">Nome da música ou faixa musical.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="artistaInput">Artista / Banda <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="artistaInput" 
+              name="artista" 
+              placeholder="Ex.: Foo Fighters" 
+              maxlength="100" 
+              required
+            >
+            <small class="field-hint">Nome do artista, compositor ou banda.</small>
+          </div>
+
+          <div id="formFeedback" class="feedback-msg" aria-live="polite"></div>
+
+          <div class="form-actions">
+            <button type="submit" id="btnSalvar" class="btn btn-primary">
+              Adicionar Música (Demo)
+            </button>
+            <button type="button" id="btnCancelar" class="btn btn-secondary">
+              Limpar
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Seção: Lista de Demonstração -->
+      <section class="card" aria-labelledby="lista-title">
+        <div class="card-header">
+          <div>
+            <h2 id="lista-title" class="card-title">Listagem de Músicas</h2>
+            <p class="card-description">Exibição de dados fictícios para validação da interface.</p>
+          </div>
+          <div class="header-tools">
+            <span id="contadorItens" class="tag-counter">Total: 0</span>
+            <button type="button" id="btnRestaurar" class="btn btn-outline" title="Restaurar dados fictícios originais">
+              Restaurar Padrão
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 80px;">ID (Demo)</th>
+                <th scope="col">Título da Música</th>
+                <th scope="col">Artista</th>
+                <th scope="col" style="width: 140px;">Origem</th>
+                <th scope="col" style="width: 150px; text-align: center;">Ações (Demo)</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaCorpo">
+              <!-- Linhas preenchidas via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <p>Nenhuma música na lista demonstrativa no momento.</p>
+          <button type="button" id="btnRecarregarVazio" class="btn btn-primary">Carregar Exemplos Fictícios</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <p>Projeto AP1 &bull; Interface de Demonstração Visual &bull; Recurso: Músicas</p>
+      <p class="footer-subtext">Construído exclusivamente com HTML, CSS e JavaScript puros (sem bibliotecas externas).</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
