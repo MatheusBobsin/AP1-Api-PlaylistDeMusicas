@@ -144,3 +144,6 @@ C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\bin\Debug\n
 C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\obj\Debug\net10.0\ApiPlaylistDeMusicas.csproj.AssemblyReference.cache
 C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\obj\Debug\net10.0\ApiPlayl.AFFF1864.Up2Date
 C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\bin\Debug\net10.0\ApiPlaylistDeMusicas.staticwebassets.runtime.json
+C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\obj\Debug\net10.0\compressed\s76sg2llwx-{0}-aslifi5xb8-aslifi5xb8.gz
+C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\obj\Debug\net10.0\compressed\drs5qxuaq1-{0}-htyeofraon-htyeofraon.gz
+C:\Users\mathe\Documents\ADS\S2\Dev-Back-end\Ap1\ApiPlaylistDeMusica\obj\Debug\net10.0\compressed\v1tawy2c8s-{0}-3kwtrawq16-3kwtrawq16.gz

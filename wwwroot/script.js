@@ -1,92 +1,198 @@
 /**
  * ==============================================================================
- * Interface de Demonstração - Recurso Músicas (Projeto AP1)
+ * Integração da Interface com a API de Músicas (Projeto AP1)
  * ==============================================================================
- * AVISO IMPORTANTE:
- * Este script opera exclusivamente no ambiente cliente (navegador), utilizando
- * dados fictícios (mock data) armazenados em memória local para fins de
- * prototipação e validação visual de interface.
- * 
- * NÃO realiza chamadas de rede (fetch, XMLHttpRequest, etc.), NÃO persiste dados
- * no banco de dados SQLite e NÃO possui conexão ativa com a API.
+ * Conexão direta com os endpoints REST:
+ * - GET    /api/musicas       -> Listar todas as músicas
+ * - GET    /api/musicas/{id}  -> Buscar detalhes por ID
+ * - POST   /api/musicas       -> Cadastrar nova música
+ * - PUT    /api/musicas/{id}  -> Atualizar música existente
+ * - DELETE /api/musicas/{id}  -> Remover música existente
+ *
+ * Diretrizes de Segurança e Acessibilidade:
+ * - Inserção de valores dinâmicos estritamente via `textContent`.
+ * - Sem dados fictícios: dados consumidos diretamente do banco via API.
+ * - Tratamento de status HTTP, estados de carregamento, erros e lista vazia.
  * ==============================================================================
  */
 
 (function () {
   "use strict";
 
-  // Conjunto padrão de dados fictícios para a demonstração
-  const DADOS_INICIAIS_DEMO = [
-    { id: 1, titulo: "In Bloom", artista: "Nirvana" },
-    { id: 2, titulo: "My Hero", artista: "Foo Fighters" },
-    { id: 3, titulo: "Come as You Are", artista: "Nirvana" },
-    { id: 4, titulo: "Learn to Fly", artista: "Foo Fighters" }
-  ];
+  // URL base dos endpoints da API
+  const API_URL = "/api/musicas";
 
-  // Estado em memória local da interface de demonstração
-  let listaMusicasDemo = JSON.parse(JSON.stringify(DADOS_INICIAIS_DEMO));
-  let proximoIdFicticio = 5;
-
-  // Elementos da interface
+  // Elementos do DOM
   const formMusica = document.getElementById("formMusica");
+  const musicaIdInput = document.getElementById("musicaId");
   const tituloInput = document.getElementById("tituloInput");
   const artistaInput = document.getElementById("artistaInput");
-  const editIndexInput = document.getElementById("editIndex");
   const btnSalvar = document.getElementById("btnSalvar");
   const btnCancelar = document.getElementById("btnCancelar");
-  const tabelaCorpo = document.getElementById("tabelaCorpo");
-  const contadorItens = document.getElementById("contadorItens");
   const formFeedback = document.getElementById("formFeedback");
+  const formTitle = document.getElementById("form-title");
+  const formDescription = document.getElementById("formDescription");
+  const modoFormTag = document.getElementById("modoFormTag");
+
+  const btnAtualizarLista = document.getElementById("btnAtualizarLista");
+  const contadorItens = document.getElementById("contadorItens");
+  const loadingIndicator = document.getElementById("loadingIndicator");
+  const tabelaContainer = document.getElementById("tabelaContainer");
+  const tabelaCorpo = document.getElementById("tabelaCorpo");
   const emptyState = document.getElementById("emptyState");
-  const btnRestaurar = document.getElementById("btnRestaurar");
-  const btnRecarregarVazio = document.getElementById("btnRecarregarVazio");
+  const emptyStateMsg = document.getElementById("emptyStateMsg");
+
+  const globalNotification = document.getElementById("globalNotification");
+  const globalNotificationText = document.getElementById("globalNotificationText");
+  const btnFecharNotificacao = document.getElementById("btnFecharNotificacao");
+
+  let timeoutFeedback = null;
+  let timeoutGlobalNotif = null;
 
   /**
-   * Renderiza as músicas fictícias na tabela HTML.
+   * Exibe notificação de feedback contextual no formulário.
+   * Utiliza textContent para inserção segura do texto.
    */
-  function renderizarTabela() {
-    tabelaCorpo.innerHTML = "";
+  function exibirFeedbackForm(mensagem, tipo = "success") {
+    if (timeoutFeedback) clearTimeout(timeoutFeedback);
 
-    const total = listaMusicasDemo.length;
-    contadorItens.textContent = `Total: ${total} ${total === 1 ? "faixa" : "faixas"}`;
+    formFeedback.textContent = mensagem;
+    formFeedback.className = `feedback-msg ${tipo}`;
+    formFeedback.style.display = "block";
+
+    timeoutFeedback = setTimeout(() => {
+      formFeedback.textContent = "";
+      formFeedback.style.display = "none";
+      formFeedback.className = "feedback-msg";
+    }, 4500);
+  }
+
+  /**
+   * Exibe alerta global no topo da página.
+   * Utiliza textContent para inserção segura do texto.
+   */
+  function exibirNotificacaoGlobal(mensagem, tipo = "error") {
+    if (timeoutGlobalNotif) clearTimeout(timeoutGlobalNotif);
+
+    globalNotificationText.textContent = mensagem;
+    globalNotification.className = `notification-box ${tipo}`;
+    globalNotification.style.display = "flex";
+
+    timeoutGlobalNotif = setTimeout(() => {
+      ocultarNotificacaoGlobal();
+    }, 6000);
+  }
+
+  function ocultarNotificacaoGlobal() {
+    globalNotification.style.display = "none";
+    globalNotificationText.textContent = "";
+  }
+
+  btnFecharNotificacao.addEventListener("click", ocultarNotificacaoGlobal);
+
+  /**
+   * Alterna a visibilidade do indicador de carregamento.
+   */
+  function definirCarregando(carregando) {
+    if (carregando) {
+      loadingIndicator.style.display = "flex";
+      tabelaContainer.style.display = "none";
+      emptyState.style.display = "none";
+      btnAtualizarLista.disabled = true;
+    } else {
+      loadingIndicator.style.display = "none";
+      btnAtualizarLista.disabled = false;
+    }
+  }
+
+  /**
+   * Desabilita/habilita botões do formulário durante gravação.
+   */
+  function definirGravando(gravando) {
+    btnSalvar.disabled = gravando;
+    btnCancelar.disabled = gravando;
+    tituloInput.disabled = gravando;
+    artistaInput.disabled = gravando;
+  }
+
+  /**
+   * Redefine o formulário para o modo de cadastro (criação).
+   */
+  function resetarFormulario() {
+    formMusica.reset();
+    musicaIdInput.value = "";
+
+    formTitle.textContent = "Cadastrar Música";
+    formDescription.textContent = "Preencha os campos abaixo para cadastrar uma nova música na playlist.";
+    modoFormTag.textContent = "Novo";
+    modoFormTag.className = "tag-badge tag-create";
+
+    btnSalvar.textContent = "Cadastrar Música";
+    btnCancelar.textContent = "Limpar";
+  }
+
+  /**
+   * Carrega os dados de uma música existente no formulário para edição.
+   */
+  function carregarParaEdicao(musica) {
+    musicaIdInput.value = musica.id;
+    tituloInput.value = musica.titulo;
+    artistaInput.value = musica.artista;
+
+    formTitle.textContent = `Editar Música #${musica.id}`;
+    formDescription.textContent = `Modifique os campos abaixo e clique em Salvar Alterações para enviar o PUT para a API.`;
+    modoFormTag.textContent = "Edição";
+    modoFormTag.className = "tag-badge tag-edit";
+
+    btnSalvar.textContent = "Salvar Alterações";
+    btnCancelar.textContent = "Cancelar Edição";
+
+    tituloInput.focus();
+    exibirFeedbackForm(`Editando música #${musica.id}: "${musica.titulo}"`, "success");
+  }
+
+  /**
+   * Renderiza a listagem de músicas recebida da API.
+   * Utiliza textContent para inserir todos os dados dinâmicos.
+   */
+  function renderizarTabela(musicas) {
+    tabelaCorpo.textContent = ""; // Limpa o corpo da tabela com segurança
+
+    const total = musicas.length;
+    contadorItens.textContent = `Total: ${total} ${total === 1 ? "música" : "músicas"}`;
 
     if (total === 0) {
+      tabelaContainer.style.display = "none";
       emptyState.style.display = "block";
+      emptyStateMsg.textContent = "Nenhuma música cadastrada no banco de dados.";
       return;
     }
 
     emptyState.style.display = "none";
+    tabelaContainer.style.display = "block";
 
-    listaMusicasDemo.forEach((musica, index) => {
+    musicas.forEach((musica) => {
       const tr = document.createElement("tr");
 
-      // ID fictício
+      // Coluna ID
       const tdId = document.createElement("td");
       tdId.textContent = `#${musica.id}`;
       tdId.style.fontWeight = "600";
       tdId.style.color = "var(--text-muted)";
       tr.appendChild(tdId);
 
-      // Título
+      // Coluna Título
       const tdTitulo = document.createElement("td");
       tdTitulo.textContent = musica.titulo;
       tdTitulo.style.fontWeight = "500";
       tr.appendChild(tdTitulo);
 
-      // Artista
+      // Coluna Artista
       const tdArtista = document.createElement("td");
       tdArtista.textContent = musica.artista;
       tr.appendChild(tdArtista);
 
-      // Tag de demonstração
-      const tdOrigem = document.createElement("td");
-      const badge = document.createElement("span");
-      badge.className = "badge-demo-tag";
-      badge.textContent = "Fictício (Demo)";
-      tdOrigem.appendChild(badge);
-      tr.appendChild(tdOrigem);
-
-      // Botões de ação visual
+      // Coluna Ações
       const tdAcoes = document.createElement("td");
       tdAcoes.className = "actions-cell";
 
@@ -94,17 +200,17 @@
       btnEdit.type = "button";
       btnEdit.className = "btn btn-action btn-edit";
       btnEdit.textContent = "Editar";
-      btnEdit.title = "Carregar dados no formulário (simulação)";
-      btnEdit.addEventListener("click", () => iniciarEdicao(index));
+      btnEdit.title = `Editar dados da música #${musica.id}`;
+      btnEdit.addEventListener("click", () => carregarParaEdicao(musica));
       tdAcoes.appendChild(btnEdit);
 
-      const btnDel = document.createElement("button");
-      btnDel.type = "button";
-      btnDel.className = "btn btn-action btn-delete";
-      btnDel.textContent = "Excluir";
-      btnDel.title = "Remover da lista visual de demonstração";
-      btnDel.addEventListener("click", () => removerItem(index));
-      tdAcoes.appendChild(btnDel);
+      const btnDelete = document.createElement("button");
+      btnDelete.type = "button";
+      btnDelete.className = "btn btn-action btn-delete";
+      btnDelete.textContent = "Excluir";
+      btnDelete.title = `Excluir música #${musica.id} do banco de dados`;
+      btnDelete.addEventListener("click", () => excluirMusica(musica.id, musica.titulo));
+      tdAcoes.appendChild(btnDelete);
 
       tr.appendChild(tdAcoes);
       tabelaCorpo.appendChild(tr);
@@ -112,121 +218,193 @@
   }
 
   /**
-   * Exibe mensagens temporárias de feedback para ações de simulação.
+   * FLUXO 1: Listar músicas da API (GET /api/musicas).
    */
-  function exibirFeedback(mensagem, tipo = "success") {
-    formFeedback.textContent = mensagem;
-    formFeedback.className = `feedback-msg ${tipo}`;
+  async function carregarMusicas() {
+    definirCarregando(true);
+    try {
+      const response = await fetch(API_URL, {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        }
+      });
 
-    setTimeout(() => {
-      formFeedback.textContent = "";
-      formFeedback.className = "feedback-msg";
-    }, 3500);
-  }
+      if (!response.ok) {
+        throw new Error(`Falha na requisição: HTTP ${response.status} (${response.statusText || "Erro do servidor"})`);
+      }
 
-  /**
-   * Prepara o formulário para editar um item existente (apenas em memória).
-   */
-  function iniciarEdicao(index) {
-    const item = listaMusicasDemo[index];
-    if (!item) return;
+      const dados = await response.json();
 
-    tituloInput.value = item.titulo;
-    artistaInput.value = item.artista;
-    editIndexInput.value = index;
+      if (!Array.isArray(dados)) {
+        throw new Error("Formato de resposta inesperado da API (esperava-se um array JSON).");
+      }
 
-    btnSalvar.textContent = "Atualizar Música (Demo)";
-    btnCancelar.textContent = "Cancelar Edição";
-    tituloInput.focus();
+      renderizarTabela(dados);
+    } catch (erro) {
+      tabelaContainer.style.display = "none";
+      emptyState.style.display = "block";
+      emptyStateMsg.textContent = "Não foi possível carregar a lista de músicas.";
+      contadorItens.textContent = "Erro de conexão";
 
-    exibirFeedback(`Carregado para edição demonstrativa: "${item.titulo}"`, "success");
-  }
-
-  /**
-   * Limpa os campos do formulário e redefine para o modo de adição.
-   */
-  function limparFormulario() {
-    formMusica.reset();
-    editIndexInput.value = "-1";
-    btnSalvar.textContent = "Adicionar Música (Demo)";
-    btnCancelar.textContent = "Limpar";
-  }
-
-  /**
-   * Remove um item da lista visual em memória.
-   */
-  function removerItem(index) {
-    const removido = listaMusicasDemo[index];
-    if (!removido) return;
-
-    listaMusicasDemo.splice(index, 1);
-    renderizarTabela();
-    exibirFeedback(`Faixa demonstrativa "${removido.titulo}" removida da visualização.`, "success");
-
-    // Se estava editando o item removido, limpa formulário
-    if (parseInt(editIndexInput.value, 10) === index) {
-      limparFormulario();
+      exibirNotificacaoGlobal(`Erro ao listar músicas da API: ${erro.message}`, "error");
+    } finally {
+      definirCarregando(false);
     }
   }
 
   /**
-   * Restaura os dados fictícios originais de teste.
+   * FLUXO 2: Cadastrar nova música na API (POST /api/musicas).
    */
-  function restaurarDadosPadrao() {
-    listaMusicasDemo = JSON.parse(JSON.stringify(DADOS_INICIAIS_DEMO));
-    limparFormulario();
-    renderizarTabela();
-    exibirFeedback("Dados fictícios padrão restaurados com sucesso!", "success");
+  async function cadastrarMusica(titulo, artista) {
+    definirGravando(true);
+    btnSalvar.textContent = "Cadastrando...";
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          titulo: titulo,
+          artista: artista
+        })
+      });
+
+      if (response.status === 201) {
+        const novaMusica = await response.json();
+        exibirFeedbackForm(`Música #${novaMusica.id} ("${novaMusica.titulo}") cadastrada com sucesso! [HTTP 201 Created]`, "success");
+        resetarFormulario();
+        await carregarMusicas();
+      } else {
+        const textoErro = await response.text();
+        throw new Error(`Erro na API [HTTP ${response.status}]: ${textoErro || response.statusText}`);
+      }
+    } catch (erro) {
+      exibirFeedbackForm(`Falha ao cadastrar: ${erro.message}`, "error");
+      exibirNotificacaoGlobal(`Erro no cadastro: ${erro.message}`, "error");
+    } finally {
+      definirGravando(false);
+      btnSalvar.textContent = "Cadastrar Música";
+    }
   }
 
   /**
-   * Manipulador do envio do formulário (simulação puramente visual).
+   * FLUXO 3: Atualizar música existente na API (PUT /api/musicas/{id}).
    */
-  formMusica.addEventListener("submit", function (event) {
+  async function atualizarMusica(id, titulo, artista) {
+    definirGravando(true);
+    btnSalvar.textContent = "Atualizando...";
+
+    try {
+      const response = await fetch(`${API_URL}/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          titulo: titulo,
+          artista: artista
+        })
+      });
+
+      if (response.status === 200) {
+        const musicaAtualizada = await response.json();
+        exibirFeedbackForm(`Música #${musicaAtualizada.id} atualizada com sucesso! [HTTP 200 OK]`, "success");
+        resetarFormulario();
+        await carregarMusicas();
+      } else if (response.status === 404) {
+        throw new Error(`Música #${id} não foi encontrada no banco de dados [HTTP 404 Not Found].`);
+      } else {
+        const textoErro = await response.text();
+        throw new Error(`Erro na API [HTTP ${response.status}]: ${textoErro || response.statusText}`);
+      }
+    } catch (erro) {
+      exibirFeedbackForm(`Falha ao atualizar: ${erro.message}`, "error");
+      exibirNotificacaoGlobal(`Erro na atualização: ${erro.message}`, "error");
+    } finally {
+      definirGravando(false);
+      btnSalvar.textContent = "Salvar Alterações";
+    }
+  }
+
+  /**
+   * FLUXO 4: Excluir música da API (DELETE /api/musicas/{id}).
+   */
+  async function excluirMusica(id, titulo) {
+    const confirmacao = window.confirm(`Deseja realmente remover a música #${id} ("${titulo}") do banco de dados?`);
+    if (!confirmacao) return;
+
+    try {
+      const response = await fetch(`${API_URL}/${encodeURIComponent(id)}`, {
+        method: "DELETE"
+      });
+
+      if (response.status === 204) {
+        exibirFeedbackForm(`Música #${id} ("${titulo}") removida com sucesso! [HTTP 204 NoContent]`, "success");
+        
+        // Se a música excluída estava sendo editada no formulário, limpa o formulário
+        if (musicaIdInput.value === String(id)) {
+          resetarFormulario();
+        }
+
+        await carregarMusicas();
+      } else if (response.status === 404) {
+        throw new Error(`A música #${id} não foi encontrada para exclusão [HTTP 404 Not Found].`);
+      } else {
+        const textoErro = await response.text();
+        throw new Error(`Erro na API [HTTP ${response.status}]: ${textoErro || response.statusText}`);
+      }
+    } catch (erro) {
+      exibirFeedbackForm(`Falha ao excluir: ${erro.message}`, "error");
+      exibirNotificacaoGlobal(`Erro na exclusão: ${erro.message}`, "error");
+    }
+  }
+
+  /**
+   * Envio do formulário (Decide entre cadastrar ou atualizar).
+   */
+  formMusica.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const titulo = tituloInput.value.trim();
     const artista = artistaInput.value.trim();
 
     if (!titulo || !artista) {
-      exibirFeedback("Por favor, preencha o Título e o Artista da música.", "error");
+      exibirFeedbackForm("Preencha todos os campos obrigatórios (Título e Artista).", "error");
       return;
     }
 
-    const editIndex = parseInt(editIndexInput.value, 10);
+    const idAtual = musicaIdInput.value.trim();
 
-    if (editIndex >= 0 && editIndex < listaMusicasDemo.length) {
-      // Atualização simulada
-      listaMusicasDemo[editIndex].titulo = titulo;
-      listaMusicasDemo[editIndex].artista = artista;
-      exibirFeedback(`Faixa demonstrativa #${listaMusicasDemo[editIndex].id} atualizada na interface!`, "success");
+    if (idAtual) {
+      // Modo Edição (PUT)
+      await atualizarMusica(idAtual, titulo, artista);
     } else {
-      // Adição simulada
-      const novaMusicaDemo = {
-        id: proximoIdFicticio++,
-        titulo: titulo,
-        artista: artista
-      };
-      listaMusicasDemo.push(novaMusicaDemo);
-      exibirFeedback(`Música "${titulo}" adicionada à lista visual de demonstração!`, "success");
+      // Modo Criação (POST)
+      await cadastrarMusica(titulo, artista);
     }
-
-    limparFormulario();
-    renderizarTabela();
   });
 
+  /**
+   * Botão Cancelar / Limpar.
+   */
   btnCancelar.addEventListener("click", function () {
-    limparFormulario();
+    resetarFormulario();
+    formFeedback.textContent = "";
+    formFeedback.style.display = "none";
   });
 
-  btnRestaurar.addEventListener("click", function () {
-    restaurarDadosPadrao();
+  /**
+   * Botão manual de Atualizar Lista.
+   */
+  btnAtualizarLista.addEventListener("click", function () {
+    carregarMusicas();
   });
 
-  btnRecarregarVazio.addEventListener("click", function () {
-    restaurarDadosPadrao();
-  });
-
-  // Inicialização ao carregar a página
-  renderizarTabela();
+  // Carrega a listagem inicial ao abrir a página
+  carregarMusicas();
 })();

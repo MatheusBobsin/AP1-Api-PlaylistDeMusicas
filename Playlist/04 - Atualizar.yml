@@ -5,14 +5,10 @@ info:
 
 http:
   method: PUT
-  url: http://localhost:5050/api/musicas/4
+  url: http://localhost:5050/api/musicas/3
   body:
     type: json
-    data: |2-
-        {
-          "titulo": "Given Up Remaster",
-          "artista": "Linkin Park"
-        }
+    data: ""
   auth: inherit
 
 settings:

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Playlist de Músicas - Interface de Demonstração</title>
+  <title>Playlist de Músicas - Gerenciamento via API</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,34 +11,32 @@
     <div class="container header-content">
       <div>
         <h1 class="app-title">Gerenciador de Músicas</h1>
-        <p class="app-subtitle">Recurso: <strong>Música</strong> (Título e Artista)</p>
+        <p class="app-subtitle">API Playlist de Músicas &bull; Endpoints: <code>/api/musicas</code></p>
       </div>
-      <span class="badge-status">Visual Demo</span>
+      <span class="badge-status">API Conectada</span>
     </div>
   </header>
 
   <main class="container">
-    <!-- Banner de Alerta de Demonstração -->
-    <aside class="demo-alert" role="status" aria-label="Aviso de Demonstração">
-      <div class="demo-alert-icon">ℹ️</div>
-      <div class="demo-alert-text">
-        <strong>Ambiente de Demonstração Visual:</strong> Esta interface utiliza dados puramente fictícios mantidos em memória local para fins de apresentação e testes visuais. Nenhuma informação é enviada à rede e nenhum dado do banco de dados é alterado.
-      </div>
-    </aside>
+    <!-- Notificação Global de Status / Erros de Rede -->
+    <div id="globalNotification" class="notification-box" role="status" aria-live="polite" style="display: none;">
+      <span id="globalNotificationText"></span>
+      <button type="button" id="btnFecharNotificacao" class="btn-close-notif" aria-label="Fechar notificação">&times;</button>
+    </div>
 
     <div class="layout-grid">
-      <!-- Seção: Formulário de Demonstração -->
+      <!-- Seção: Formulário de Cadastro e Edição -->
       <section class="card" aria-labelledby="form-title">
         <div class="card-header">
-          <h2 id="form-title" class="card-title">Cadastrar Música (Demonstração)</h2>
-          <span class="tag-mock">Mock Form</span>
+          <h2 id="form-title" class="card-title">Cadastrar Música</h2>
+          <span id="modoFormTag" class="tag-badge tag-create">Novo</span>
         </div>
-        <p class="card-description">
-          Preencha os campos abaixo para simular a adição visual de uma nova faixa musical na lista.
+        <p id="formDescription" class="card-description">
+          Preencha os campos abaixo para cadastrar uma nova música na playlist.
         </p>
 
         <form id="formMusica" class="form-container" novalidate>
-          <input type="hidden" id="editIndex" value="-1">
+          <input type="hidden" id="musicaId" value="">
 
           <div class="form-group">
             <label for="tituloInput">Título da Música <span class="required">*</span></label>
@@ -46,11 +44,11 @@
               type="text" 
               id="tituloInput" 
               name="titulo" 
-              placeholder="Ex.: Everlong" 
+              placeholder="Ex.: My Hero" 
               maxlength="100" 
               required
             >
-            <small class="field-hint">Nome da música ou faixa musical.</small>
+            <small class="field-hint">Nome da música ou faixa.</small>
           </div>
 
           <div class="form-group">
@@ -66,11 +64,11 @@
             <small class="field-hint">Nome do artista, compositor ou banda.</small>
           </div>
 
-          <div id="formFeedback" class="feedback-msg" aria-live="polite"></div>
+          <div id="formFeedback" class="feedback-msg" aria-live="polite" style="display: none;"></div>
 
           <div class="form-actions">
             <button type="submit" id="btnSalvar" class="btn btn-primary">
-              Adicionar Música (Demo)
+              Cadastrar Música
             </button>
             <button type="button" id="btnCancelar" class="btn btn-secondary">
               Limpar
@@ -79,41 +77,48 @@
         </form>
       </section>
 
-      <!-- Seção: Lista de Demonstração -->
+      <!-- Seção: Lista de Músicas -->
       <section class="card" aria-labelledby="lista-title">
         <div class="card-header">
           <div>
-            <h2 id="lista-title" class="card-title">Listagem de Músicas</h2>
-            <p class="card-description">Exibição de dados fictícios para validação da interface.</p>
+            <h2 id="lista-title" class="card-title">Músicas Cadastradas</h2>
+            <p class="card-description">Lista obtida em tempo real da API (<code>GET /api/musicas</code>).</p>
           </div>
           <div class="header-tools">
-            <span id="contadorItens" class="tag-counter">Total: 0</span>
-            <button type="button" id="btnRestaurar" class="btn btn-outline" title="Restaurar dados fictícios originais">
-              Restaurar Padrão
+            <span id="contadorItens" class="tag-counter">Carregando...</span>
+            <button type="button" id="btnAtualizarLista" class="btn btn-outline" title="Recarregar lista da API">
+              Atualizar
             </button>
           </div>
         </div>
 
-        <div class="table-responsive">
+        <!-- Indicador de Carregamento -->
+        <div id="loadingIndicator" class="loading-state" style="display: none;" role="status">
+          <div class="spinner"></div>
+          <span class="loading-text">Carregando músicas da API...</span>
+        </div>
+
+        <!-- Tabela de Dados -->
+        <div id="tabelaContainer" class="table-responsive">
           <table class="data-table">
             <thead>
               <tr>
-                <th scope="col" style="width: 80px;">ID (Demo)</th>
-                <th scope="col">Título da Música</th>
+                <th scope="col" style="width: 80px;">ID</th>
+                <th scope="col">Título</th>
                 <th scope="col">Artista</th>
-                <th scope="col" style="width: 140px;">Origem</th>
-                <th scope="col" style="width: 150px; text-align: center;">Ações (Demo)</th>
+                <th scope="col" style="width: 160px; text-align: center;">Ações</th>
               </tr>
             </thead>
             <tbody id="tabelaCorpo">
-              <!-- Linhas preenchidas via JavaScript -->
+              <!-- Linhas inseridas dinamicamente via textContent no script.js -->
             </tbody>
           </table>
         </div>
 
+        <!-- Estado de Lista Vazia -->
         <div id="emptyState" class="empty-state" style="display: none;">
-          <p>Nenhuma música na lista demonstrativa no momento.</p>
-          <button type="button" id="btnRecarregarVazio" class="btn btn-primary">Carregar Exemplos Fictícios</button>
+          <p id="emptyStateMsg">Nenhuma música cadastrada no momento.</p>
+          <small class="empty-state-hint">Utilize o formulário ao lado para cadastrar sua primeira música.</small>
         </div>
       </section>
     </div>
@@ -121,8 +126,8 @@
 
   <footer class="app-footer">
     <div class="container footer-content">
-      <p>Projeto AP1 &bull; Interface de Demonstração Visual &bull; Recurso: Músicas</p>
-      <p class="footer-subtext">Construído exclusivamente com HTML, CSS e JavaScript puros (sem bibliotecas externas).</p>
+      <p>Projeto AP1 &bull; API Playlist de Músicas &bull; ASP.NET Core &amp; SQLite</p>
+      <p class="footer-subtext">Interface integrada via requisições HTTP REST (Fetch API nativa em JavaScript puro).</p>
     </div>
   </footer>
 
