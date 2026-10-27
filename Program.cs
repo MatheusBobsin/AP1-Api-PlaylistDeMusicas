@@ -1,69 +1,69 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ApiDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var app = builder.Build();
 
-var musicas = new List<MusicaDto>
-{
-    new MusicaDto(1, "In Bloom", "Nirvana"),
-    new MusicaDto(2, "My hero", "Foo Fighters"),
-};
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
-app.MapGet("/", () => "API da playlist de músicas está no ar");
-
-app.MapGet("/api/musicas", () =>
+app.MapPost("/api/musicas", async (MusicaEntradaDto dados, ApiDbContext db) =>
 {
-    return Results.Ok(musicas);
+    var novaMusica = new MusicaEntity { Titulo = dados.Titulo, Artista = dados.Artista };
+    db.Musicas.Add(novaMusica);
+    await db.SaveChangesAsync();
+    return Results.Created($"/api/musicas/{novaMusica.Id}", novaMusica);
 });
 
-app.MapGet("/api/musicas/{id:int}", (int id) =>
-{
-    var musica = musicas.Find(musicaDaLista => musicaDaLista.Id == id);
+app.MapGet("/api/musicas", async (ApiDbContext db) =>
+    await db.Musicas.ToListAsync());
 
-    if (musica is null)
-    {
-        return Results.NotFound();
-    }
+app.MapGet("/api/musicas/{id:int}", async (int id, ApiDbContext db) =>
+{
+    var musica = await db.Musicas.FindAsync(id);
+    if (musica is null) return Results.NotFound();
+    return Results.Ok(musica);
+});
+
+app.MapPut("/api/musicas/{id:int}", async (int id, MusicaEntradaDto dados, ApiDbContext db) => 
+{
+    var musica = await db.Musicas.FindAsync(id);
+    if (musica is null) return Results.NotFound();
+
+    musica.Titulo = dados.Titulo;
+    musica.Artista = dados.Artista;
+    await db.SaveChangesAsync();
 
     return Results.Ok(musica);
 });
 
-app.MapPost("/api/musicas", (MusicaEntradaDto dados) =>
+app.MapDelete("/api/musicas/{id:int}", async (int id, ApiDbContext db) => 
 {
-    int proximoId = musicas.Count + 1;
+    var musica = await db.Musicas.FindAsync(id);
+    if (musica is null) return Results.NotFound();
 
-    var novaMusica = new MusicaDto(proximoId, dados.Titulo, dados.Artista);
+    db.Musicas.Remove(musica);
+    await db.SaveChangesAsync();
 
-    musicas.Add(novaMusica);
-
-    return Results.Created($"/api/musicas/{novaMusica.Id}", novaMusica);
-});
-
-app.MapPut("/api/musicas/{id:int}", (int id, MusicaEntradaDto dados) => 
-{
-    int indice = musicas.FindIndex(musicaDaLista => musicaDaLista.Id == id);
-    if(indice == -1)
-    {
-        return Results.NotFound();
-    }
-
-    var musicaAtualizada = new MusicaDto(id, dados.Titulo, dados.Artista);
-
-    musicas[indice] = musicaAtualizada;
-
-    return Results.Ok(musicaAtualizada);
-});
-
-app.MapDelete("/api/musicas/{id:int}", (int id) => 
-{
-    int indice = musicas.FindIndex(musicaDaLista => musicaDaLista.Id == id);
-    if(indice == -1)
-    {
-        return Results.NotFound();
-    }
-    musicas.RemoveAt(indice);
     return Results.NoContent();
 });
 
 app.Run();
 
-record MusicaDto(int Id, string Titulo, string Artista);
 record MusicaEntradaDto(string Titulo, string Artista);
+
+class MusicaEntity
+{
+    public int Id { get; set; }
+    public string Titulo { get; set; } = string.Empty;
+    public string Artista { get; set; } = string.Empty;
+}
+
+class ApiDbContext : DbContext
+{
+    public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options) { }
+    public DbSet<MusicaEntity> Musicas => Set<MusicaEntity>();
+}

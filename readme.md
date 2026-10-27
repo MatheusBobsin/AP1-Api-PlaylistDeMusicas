@@ -6,13 +6,26 @@ API REST minimalista para gerenciamento de playlists de músicas, desenvolvida c
 
 * [.NET 10 SDK](https://dotnet.microsoft.com/) instalado no sistema.
 
+## Como Executar e Preparar o Banco
+
+1. Abra o terminal na raiz do repositório.
+2. Prepare o banco de dados executando a migration do Entity Framework:
+```bash
+dotnet ef database update
+```
+
 ## Como Executar
 
 1. Abra o terminal na raiz do repositório.
 2. Execute o comando para iniciar a API na porta local `5050`:
 
-bash
+```bash
 dotnet run --urls http://localhost:5050
+```
+
+## Como Abrir a Interface (Frontend)
+Após iniciar a API com o comando acima, abra o seu navegador e acesse o endereço http://localhost:5050 para visualizar e interagir com a interface web.
+
 
 ## Endpoints da API
 
@@ -73,7 +86,7 @@ DELETE /api/musicas/1
 ## Observações
 
 * A aplicação inicia com as músicas `In Bloom` e `My Hero`.
-* Os dados ficam armazenados somente em memória e são perdidos ao reiniciar a aplicação.
+* Os dados agora são gravados em um banco de dados SQLite (Entity Framework Core) e não são perdidos ao reiniciar a aplicação.
 * Operações para um ID inexistente retornam HTTP `404 Not Found`.
 * O cadastro retorna HTTP `201 Created` e a remoção bem-sucedida retorna HTTP `204 No Content`.
 =======
@@ -81,4 +94,4 @@ DELETE /api/musicas/1
 
 ## Vídeo de Demonstração
 
-[Vídeo de demonstração](https://drive.google.com/file/d/1dW4hdHI181M-pTSArmDzKzr32G-oTR_t/view?usp=sharing)
+
